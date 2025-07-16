@@ -1,7 +1,7 @@
 {
   "name": "settlementmap",
   "version": "1.0.0",
-  "description": "Generate a settlement map.",
+  "description": "Draw a settlement map.",
   "main": "index.html",
   "scripts": {
     "start": "serve .",

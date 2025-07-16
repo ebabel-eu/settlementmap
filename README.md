@@ -1,5 +1,5 @@
 # settlementmap
-Generate a map for a village, a town, or a city. Each square is 30ft
+Draw a map for a village, a town, or a city. Each square is 60ft
 
 ## Install
 If you haven't already, install `serve` globally with `npm install --global serve`
@@ -14,6 +14,6 @@ Click on the button `DM / Players` to toggle the details on and off.
 
 Switch between colour and grayscale.
 
-Click on `New Map` to generate a branch new map with new Points of Interest.
+Click on `New Map` to start drawing a new map with new Points of Interest.
 
 ![Sample map](screenshot.png)

@@ -17,8 +17,6 @@ function initApp(data) {
   const newTownBtn = document.getElementById("newTownButton");
   const newCityBtn = document.getElementById("newCityButton");
   const customMenu = document.getElementById("customMenu");
-  const toggleDangerBtn = document.getElementById("toggleDangerButton");
-  const poiSection = document.getElementById("poiList");
 
   const namePools = {
     Village: data.villageNames,
@@ -84,16 +82,6 @@ function initApp(data) {
     }
   }
 
-  function getDangerColour(level) {
-    switch (level) {
-      case "Safe": return "#6a9955";
-      case "Unsafe": return "#c2b000";
-      case "Risky": return "#b96a00";
-      case "Deadly": return "#8b0000";
-      default: return "#333";
-    }
-  }
-
   function getDangerAbbreviation(level) {
     switch (level) {
       case "Safe": return "S";
@@ -140,11 +128,10 @@ function initApp(data) {
         ctx.fillText("PoI", cellX + 4, cellY + cellSize - 4);
       }
 
-      // Danger level (bottom-right) for DM only
-      if (poiSection.style.display !== "none" && danger) {
+      // Danger level (bottom-right)
+      if (danger) {
         ctx.textAlign = "right";
         ctx.textBaseline = "bottom";
-        ctx.fillStyle = getDangerColour(danger);
         ctx.fillText(getDangerAbbreviation(danger), cellX + cellSize - 4, cellY + cellSize - 4);
       }
     }
@@ -323,11 +310,6 @@ function initApp(data) {
   newVillageBtn.addEventListener("click", () => generateEmptySettlement("Village"));
   newTownBtn.addEventListener("click", () => generateEmptySettlement("Town"));
   newCityBtn.addEventListener("click", () => generateEmptySettlement("City"));
-  toggleDangerBtn.addEventListener("click", () => {
-    const visible = poiSection.style.display !== "none";
-    poiSection.style.display = visible ? "none" : "block";
-    toggleDangerBtn.textContent = visible ? "Show to DM" : "Show to Players";
-  });
 
   generateEmptySettlement("Village"); // start with default
 }
