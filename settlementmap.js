@@ -28,7 +28,7 @@ function initApp(data) {
 
   let gridCount = 10;
   let currentSettlementType = "Village";
-  let cellMap = new Map(); // key: "x,y" -> district
+  let cellMap = new Map(); // key: "x,y" -> { district, poi? }
 
   function getRandomName(settlementType) {
     const settlementNames = namePools[settlementType];
@@ -41,13 +41,55 @@ function initApp(data) {
     cellMap.clear();
   }
 
+  function updatePoiList() {
+    const poiList = document.querySelector("#poiList ul");
+    poiList.innerHTML = "";
+
+    // Sort entries by cell number
+    const entries = [...cellMap.entries()]
+      .filter(([_, value]) => value.poi)
+      .map(([key, value]) => {
+        const [x, y] = key.split(',').map(Number);
+        const cellNumber = y * gridCount + x + 1;
+        return { cellNumber, poi: value.poi };
+      })
+      .sort((a, b) => a.cellNumber - b.cellNumber);
+
+    for (const { cellNumber, poi } of entries) {
+      const li = document.createElement("li");
+
+      const strong = document.createElement("strong");
+      strong.textContent = cellNumber;
+
+      const span = document.createElement("span");
+      span.className = "poi-text";
+      span.contentEditable = true;
+      span.textContent = poi;
+
+      li.appendChild(strong);
+      li.append(": ");
+      li.appendChild(span);
+      poiList.appendChild(li);
+    }
+  }
+
+
   function drawGrid() {
     const cellSize = canvas.width / gridCount;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (const [key, district] of cellMap.entries()) {
+    for (const [key, { district }] of cellMap.entries()) {
       const [x, y] = key.split(',').map(Number);
       ctx.fillStyle = getDistrictColour(district);
       ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+      // Draw cell number
+      const cellNumber = y * gridCount + x + 1;
+      ctx.fillStyle = "#222";
+      ctx.font = `${Math.floor(cellSize * 0.4)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(cellNumber, x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
     }
 
     ctx.strokeStyle = '#ccc';
@@ -113,13 +155,21 @@ function initApp(data) {
     customMenu.appendChild(divider);
 
     const customLi = document.createElement("li");
-    customLi.textContent = "Enter custom district...";
+    customLi.textContent = "Enter point of interest...";
     customLi.style.cursor = "pointer";
     customLi.style.fontStyle = "italic";
     customLi.onclick = () => {
-      const custom = prompt("Enter district name:");
+      const custom = prompt("Enter point of interest:");
       if (custom) {
-        setDistrict(x, y, custom);
+        const key = `${x},${y}`;
+        const cell = cellMap.get(key);
+        if (cell) {
+          cellMap.set(key, { ...cell, poi: custom });
+        } else {
+          cellMap.set(key, { district: "Low", poi: custom }); // fallback default district
+        }
+        drawGrid();
+        updatePoiList();
       }
       hideMenu();
     };
@@ -135,8 +185,11 @@ function initApp(data) {
   }
 
   function setDistrict(x, y, district) {
-    cellMap.set(`${x},${y}`, district);
+    const key = `${x},${y}`;
+    const prev = cellMap.get(key);
+    cellMap.set(key, { district, poi: prev?.poi });
     drawGrid();
+    updatePoiList();
   }
 
   window.addEventListener("click", hideMenu);
