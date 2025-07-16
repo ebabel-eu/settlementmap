@@ -44,9 +44,10 @@ function initApp(data) {
 
   function updatePoiList() {
     const poiList = document.querySelector("#poiList ul");
+    const poiSection = document.getElementById("poiList");
     poiList.innerHTML = "";
 
-    // Sort entries by cell number
+    // Get PoI entries
     const entries = [...cellMap.entries()]
       .filter(([_, value]) => value.poi)
       .map(([key, value]) => {
@@ -56,6 +57,15 @@ function initApp(data) {
       })
       .sort((a, b) => a.cellNumber - b.cellNumber);
 
+    // Hide or show section
+    if (entries.length === 0) {
+      poiSection.style.display = "none";
+      return;
+    } else {
+      poiSection.style.display = "block";
+    }
+
+    // Populate list
     for (const { cellNumber, poi } of entries) {
       const li = document.createElement("li");
 
