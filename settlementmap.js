@@ -17,6 +17,8 @@ function initApp(data) {
   const newTownBtn = document.getElementById("newTownButton");
   const newCityBtn = document.getElementById("newCityButton");
   const customMenu = document.getElementById("customMenu");
+  const toggleDangerBtn = document.getElementById("toggleDangerButton");
+  const poiSection = document.getElementById("poiList");
 
   const namePools = {
     Village: data.villageNames,
@@ -73,25 +75,42 @@ function initApp(data) {
     }
   }
 
-
   function drawGrid() {
     const cellSize = canvas.width / gridCount;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (const [key, { district }] of cellMap.entries()) {
+    for (const [key, { district, poi }] of cellMap.entries()) {
       const [x, y] = key.split(',').map(Number);
-      ctx.fillStyle = getDistrictColour(district);
-      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      const cellX = x * cellSize;
+      const cellY = y * cellSize;
 
-      // Draw cell number
+      ctx.fillStyle = getDistrictColour(district);
+      ctx.fillRect(cellX, cellY, cellSize, cellSize);
+
+      // Draw text (number, district, PoI)
       const cellNumber = y * gridCount + x + 1;
       ctx.fillStyle = "#222";
-      ctx.font = `${Math.floor(cellSize * 0.4)}px sans-serif`;
       ctx.textAlign = "center";
+
+      const fontSize = Math.floor(cellSize * 0.2);
+      ctx.font = `${fontSize}px sans-serif`;
+
+      // Number - top
+      ctx.textBaseline = "top";
+      ctx.fillText(`${cellNumber}`, cellX + cellSize / 2, cellY + 2);
+
+      // District - middle
       ctx.textBaseline = "middle";
-      ctx.fillText(cellNumber, x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+      ctx.fillText(district, cellX + cellSize / 2, cellY + cellSize / 2);
+
+      // PoI - bottom
+      if (poi) {
+        ctx.textBaseline = "bottom";
+        ctx.fillText("PoI", cellX + cellSize / 2, cellY + cellSize - 2);
+      }
     }
 
+    // Grid lines
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth = 1;
 
@@ -136,9 +155,8 @@ function initApp(data) {
     currentClick = { x, y };
 
     customMenu.innerHTML = "";
-    const recommended = allowedDistricts[currentSettlementType];
 
-    for (const district of recommended) {
+    for (const district of data.districts) {
       const li = document.createElement("li");
       li.textContent = district;
       li.style.cursor = "pointer";
@@ -175,6 +193,25 @@ function initApp(data) {
     };
     customMenu.appendChild(customLi);
 
+    // Divider
+    const divider2 = document.createElement("li");
+    divider2.textContent = "────────────";
+    customMenu.appendChild(divider2);
+
+    // Clear cell option
+    const clearLi = document.createElement("li");
+    clearLi.textContent = "Clear cell";
+    clearLi.style.cursor = "pointer";
+    clearLi.style.color = "#a00";
+    clearLi.onclick = () => {
+      const key = `${x},${y}`;
+      cellMap.delete(key);
+      drawGrid();
+      updatePoiList();
+      hideMenu();
+    };
+    customMenu.appendChild(clearLi);
+
     customMenu.style.left = `${e.clientX}px`;
     customMenu.style.top = `${e.clientY}px`;
     customMenu.style.display = "block";
@@ -201,6 +238,11 @@ function initApp(data) {
   newVillageBtn.addEventListener("click", () => generateEmptySettlement("Village"));
   newTownBtn.addEventListener("click", () => generateEmptySettlement("Town"));
   newCityBtn.addEventListener("click", () => generateEmptySettlement("City"));
+  toggleDangerBtn.addEventListener("click", () => {
+    const visible = poiSection.style.display !== "none";
+    poiSection.style.display = visible ? "none" : "block";
+    toggleDangerBtn.textContent = visible ? "Show to Players" : "Show to DM";
+  });
 
   generateEmptySettlement("Village"); // start with default
 }

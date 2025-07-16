@@ -316,35 +316,21 @@
     "Thornport"
   ],
   "gridSizes": {
-    "Village": 10,
-    "Town": 15,
-    "City": 26
+    "Village": 6,
+    "Town": 10,
+    "City": 15
   },
-  "allowedDistricts": {
-    "Village": [
-      "Low",
-      "Artisan",
-      "Market"
-    ],
-    "Town": [
-      "Low",
-      "Artisan",
-      "Market",
-      "Temple",
-      "Fort"
-    ],
-    "City": [
-      "Slums",
-      "Low",
-      "Artisan",
-      "Market",
-      "High",
-      "Temple",
-      "Magic",
-      "Fort",
-      "Necropolis",
-      "Foreign",
-      "Docks"
-    ]
-  }
+  "districts": [
+    "Slums",
+    "Low",
+    "Artisan",
+    "Market",
+    "High",
+    "Temple",
+    "Magic",
+    "Fort",
+    "Necropolis",
+    "Foreign",
+    "Docks"
+  ]
 }
