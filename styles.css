@@ -6,7 +6,7 @@
   --district-high: #c3d9d7;
   --district-temple: #e1d4f2;
   --district-magic: #c7b6f3;
-  --district-castle: #f2c4c4;
+  --district-fort: #f2c4c4;
 }
 
 *, *::before, *::after {
@@ -87,8 +87,8 @@ h1, h2, .map-title {
   background: var(--district-magic);
 }
 
-.swatch-castle {
-  background: var(--district-castle);
+.swatch-fort {
+  background: var(--district-fort);
 }
 
 ul {

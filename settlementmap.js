@@ -33,18 +33,33 @@ function initApp(data) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  function generateSettlement(type) {
+  function drawGrid(ctx, size = 30, width = 780, height = 780) {
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x <= width; x += size) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+
+    for (let y = 0; y <= height; y += size) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+  }
+
+  function generateSettlement(type, ctx) {
     const name = getRandomName(type);
 
     nameEl.textContent = name;
     typeEl.textContent = type;
 
-    clearMap();
-
-    // Temporary visual feedback (later: draw buildings, etc.)
-    ctx.fillStyle = "#ddd";
-    ctx.font = "20px serif";
-    ctx.fillText(`${name} (${type})`, 20, 40);
+    clearMap(ctx);
+    drawGrid(ctx);
   }
 
   // Event listeners
@@ -52,7 +67,7 @@ function initApp(data) {
   newTownBtn.addEventListener("click", () => generateSettlement("Town"));
   newCityBtn.addEventListener("click", () => generateSettlement("City"));
 
-  generateSettlement("Village");
+  generateSettlement("Village", ctx);
 }
 
 loadApp();
