@@ -34,9 +34,10 @@ function initApp(data) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  function drawGrid(ctx, gridCount, cellSize = 30) {
-    const width = gridCount * cellSize;
-    const height = gridCount * cellSize;
+  function drawGrid(ctx, gridCount) {
+    const cellSize = canvas.width / gridCount;
+    const width = canvas.width;
+    const height = canvas.height;
 
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth = 1;
@@ -55,6 +56,7 @@ function initApp(data) {
       ctx.stroke();
     }
   }
+
 
 
   function generateSettlement(type, ctx) {

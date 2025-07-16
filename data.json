@@ -316,8 +316,8 @@
     "Thornport"
   ],
   "gridSizes": {
-    "Village": 12,
-    "Town": 18,
+    "Village": 10,
+    "Town": 15,
     "City": 26
   }
 }
