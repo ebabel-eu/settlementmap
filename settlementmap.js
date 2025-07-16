@@ -120,47 +120,32 @@ function initApp(data) {
     clearMap(ctx);
 
     const gridCount = gridSizes[type];
-    const districtTypes = allowedDistricts[type];
+    const districts = [...allowedDistricts[type]];
 
-    const usedCells = new Set();
+    // Step 1: Create organic blob with buffer
+    const usableShape = generateSettlementShape(gridCount, Math.floor(gridCount * gridCount * 0.4), true);
 
-    for (const district of districtTypes) {
-      const maxFill = Math.floor((gridCount * gridCount) / districtTypes.length * (0.8 + Math.random() * 0.4)); // variable size
-      const cells = generateDistrictShape(gridCount, maxFill, usedCells);
-      drawDistrict(ctx, gridCount, district, cells);
-      for (const [x, y] of cells) {
-        usedCells.add(`${x},${y}`);
-      }
-    }
+    // Step 2: Partition blob into N contiguous sub-blobs
+    const districtCells = splitIntoDistricts(usableShape, districts);
 
-    drawGrid(ctx, gridCount); // overlay
+    // Step 3: Draw each district
+    drawDistricts(ctx, gridCount, districtCells);
+
+    drawGrid(ctx, gridCount); // overlay grid
   }
 
-  function generateDistrictShape(gridCount, targetCount, usedCells) {
+  // Modified shape generator to avoid edges
+  function generateSettlementShape(gridCount, targetCount, avoidEdges = false) {
     const filled = new Set();
     const toExplore = [];
 
-    // Start from a random unused cell
-    let start;
-    do {
-      const sx = Math.floor(Math.random() * gridCount);
-      const sy = Math.floor(Math.random() * gridCount);
-      const key = `${sx},${sy}`;
-      if (!usedCells.has(key)) {
-        start = key;
-        break;
-      }
-    } while (true);
-
-    toExplore.push(start);
-    filled.add(start);
+    const start = Math.floor(gridCount / 2);
+    toExplore.push(`${start},${start}`);
+    filled.add(`${start},${start}`);
 
     while (filled.size < targetCount && toExplore.length > 0) {
       const [x, y] = toExplore.shift().split(',').map(Number);
-
-      const directions = [
-        [0, -1], [1, 0], [0, 1], [-1, 0]
-      ];
+      const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
       for (const [dx, dy] of directions) {
         const nx = x + dx;
@@ -168,11 +153,12 @@ function initApp(data) {
         const key = `${nx},${ny}`;
 
         if (
-          nx >= 0 && ny >= 0 &&
-          nx < gridCount && ny < gridCount &&
+          nx >= (avoidEdges ? 1 : 0) &&
+          ny >= (avoidEdges ? 1 : 0) &&
+          nx < gridCount - (avoidEdges ? 1 : 0) &&
+          ny < gridCount - (avoidEdges ? 1 : 0) &&
           !filled.has(key) &&
-          !usedCells.has(key) &&
-          Math.random() < 0.7
+          Math.random() < 0.6
         ) {
           filled.add(key);
           toExplore.push(key);
@@ -181,14 +167,67 @@ function initApp(data) {
       }
     }
 
-    return Array.from(filled).map(str => str.split(',').map(Number));
+    return Array.from(filled).map(s => s.split(',').map(Number));
   }
 
-  function drawDistrict(ctx, gridCount, district, cells) {
+  // Split blob into contiguous district areas
+  function splitIntoDistricts(cells, districtTypes) {
+    const shuffled = [...cells];
+    const grid = new Map(shuffled.map(([x, y]) => [`${x},${y}`, null]));
+
+    const chunks = {};
+    const queue = [];
+    let remaining = new Set(shuffled.map(([x, y]) => `${x},${y}`));
+
+    for (const district of districtTypes) {
+      const chunk = [];
+      const seed = shuffled.find(([x, y]) => remaining.has(`${x},${y}`));
+      if (!seed) {
+        console.warn(`No remaining cell found for district ${district}`);
+        continue; // Skip this district
+      }
+
+      const [seedX, seedY] = seed;
+      const visited = new Set();
+      queue.push([seedX, seedY]);
+      visited.add(`${seedX},${seedY}`);
+      remaining.delete(`${seedX},${seedY}`);
+
+      const maxCells = Math.floor(cells.length / districtTypes.length * (0.8 + Math.random() * 0.4));
+
+      while (queue.length > 0 && chunk.length < maxCells) {
+        const [x, y] = queue.shift();
+        chunk.push([x, y]);
+        grid.set(`${x},${y}`, district);
+
+        const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+        for (const [dx, dy] of directions) {
+          const nx = x + dx;
+          const ny = y + dy;
+          const key = `${nx},${ny}`;
+          if (remaining.has(key) && !visited.has(key)) {
+            visited.add(key);
+            queue.push([nx, ny]);
+            remaining.delete(key);
+          }
+        }
+      }
+
+      chunks[district] = chunk;
+    }
+
+    return chunks;
+  }
+
+  function drawDistricts(ctx, gridCount, districtChunks) {
     const cellSize = canvas.width / gridCount;
-    ctx.fillStyle = getDistrictColour(district);
-    for (const [x, y] of cells) {
-      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+    for (const [district, cells] of Object.entries(districtChunks)) {
+      const colour = getDistrictColour(district);
+      ctx.fillStyle = colour;
+      for (const [x, y] of cells) {
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
     }
   }
 
