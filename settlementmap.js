@@ -26,7 +26,6 @@ function initApp(data) {
     City: data.cityNames
   };
   const gridSizes = data.gridSizes;
-  const allowedDistricts = data.allowedDistricts;
 
   let gridCount = 10;
   let currentSettlementType = "Village";
@@ -296,8 +295,11 @@ function initApp(data) {
 
   function setDistrict(x, y, district) {
     const key = `${x},${y}`;
-    const prev = cellMap.get(key);
-    cellMap.set(key, { district, poi: prev?.poi });
+    const prev = cellMap.get(key) || {};
+    cellMap.set(key, {
+      ...prev,
+      district  // overrides district, keeps poi, danger, etc.
+    });
     drawGrid();
     updatePoiList();
   }
@@ -314,7 +316,7 @@ function initApp(data) {
   toggleDangerBtn.addEventListener("click", () => {
     const visible = poiSection.style.display !== "none";
     poiSection.style.display = visible ? "none" : "block";
-    toggleDangerBtn.textContent = visible ? "Show to Players" : "Show to DM";
+    toggleDangerBtn.textContent = visible ? "Show to DM" : "Show to Players";
   });
 
   generateEmptySettlement("Village"); // start with default
