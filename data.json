@@ -314,5 +314,10 @@
     "Zulmorrah",
     "Halverad",
     "Thornport"
-  ]
+  ],
+  "gridSizes": {
+    "Village": 12,
+    "Town": 18,
+    "City": 26
+  }
 }

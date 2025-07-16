@@ -22,6 +22,7 @@ function initApp(data) {
     Town: data.townNames,
     City: data.cityNames
   };
+  const gridSizes = data.gridSizes;
 
   function getRandomName(type) {
     const settlementNames = namePools[type];
@@ -29,28 +30,32 @@ function initApp(data) {
     return settlementNames[index];
   }
 
-  function clearMap() {
+  function clearMap(ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  function drawGrid(ctx, size = 30, width = 780, height = 780) {
+  function drawGrid(ctx, gridCount, cellSize = 30) {
+    const width = gridCount * cellSize;
+    const height = gridCount * cellSize;
+
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth = 1;
 
-    for (let x = 0; x <= width; x += size) {
+    for (let x = 0; x <= width; x += cellSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
 
-    for (let y = 0; y <= height; y += size) {
+    for (let y = 0; y <= height; y += cellSize) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
     }
   }
+
 
   function generateSettlement(type, ctx) {
     const name = getRandomName(type);
@@ -59,13 +64,15 @@ function initApp(data) {
     typeEl.textContent = type;
 
     clearMap(ctx);
-    drawGrid(ctx);
+
+    const gridCount = gridSizes[type];
+    drawGrid(ctx, gridCount);
   }
 
   // Event listeners
-  newVillageBtn.addEventListener("click", () => generateSettlement("Village"));
-  newTownBtn.addEventListener("click", () => generateSettlement("Town"));
-  newCityBtn.addEventListener("click", () => generateSettlement("City"));
+  newVillageBtn.addEventListener("click", () => generateSettlement("Village", ctx));
+  newTownBtn.addEventListener("click", () => generateSettlement("Town", ctx));
+  newCityBtn.addEventListener("click", () => generateSettlement("City", ctx));
 
   generateSettlement("Village", ctx);
 }
