@@ -75,42 +75,72 @@ function initApp(data) {
     }
   }
 
+  function getDangerColour(level) {
+    switch (level) {
+      case "Safe": return "#6a9955";
+      case "Unsafe": return "#c2b000";
+      case "Risky": return "#b96a00";
+      case "Deadly": return "#8b0000";
+      default: return "#333";
+    }
+  }
+
+  function getDangerAbbreviation(level) {
+    switch (level) {
+      case "Safe": return "S";
+      case "Unsafe": return "U";
+      case "Risky": return "R";
+      case "Deadly": return "D";
+      default: return "?";
+    }
+  }
+
   function drawGrid() {
     const cellSize = canvas.width / gridCount;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (const [key, { district, poi }] of cellMap.entries()) {
+    for (const [key, { district, poi, danger }] of cellMap.entries()) {
       const [x, y] = key.split(',').map(Number);
       const cellX = x * cellSize;
       const cellY = y * cellSize;
 
+      // Fill cell background
       ctx.fillStyle = getDistrictColour(district);
       ctx.fillRect(cellX, cellY, cellSize, cellSize);
 
-      // Draw text (number, district, PoI)
-      const cellNumber = y * gridCount + x + 1;
+      // Set common styles
+      const fontSize = Math.floor(cellSize * 0.2);
+      ctx.font = `${fontSize}px sans-serif`;
       ctx.fillStyle = "#222";
       ctx.textAlign = "center";
 
-      const fontSize = Math.floor(cellSize * 0.2);
-      ctx.font = `${fontSize}px sans-serif`;
+      const cellNumber = y * gridCount + x + 1;
 
-      // Number - top
+      // Cell number (top)
       ctx.textBaseline = "top";
       ctx.fillText(`${cellNumber}`, cellX + cellSize / 2, cellY + 2);
 
-      // District - middle
+      // District (middle)
       ctx.textBaseline = "middle";
       ctx.fillText(district, cellX + cellSize / 2, cellY + cellSize / 2);
 
-      // PoI - bottom
+      // PoI (bottom-left)
       if (poi) {
+        ctx.textAlign = "left";
         ctx.textBaseline = "bottom";
-        ctx.fillText("PoI", cellX + cellSize / 2, cellY + cellSize - 2);
+        ctx.fillText("PoI", cellX + 4, cellY + cellSize - 4);
+      }
+
+      // Danger level (bottom-right) for DM only
+      if (poiSection.style.display !== "none" && danger) {
+        ctx.textAlign = "right";
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = getDangerColour(danger);
+        ctx.fillText(getDangerAbbreviation(danger), cellX + cellSize - 4, cellY + cellSize - 4);
       }
     }
 
-    // Grid lines
+    // Draw grid lines
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth = 1;
 
@@ -214,6 +244,32 @@ function initApp(data) {
     const divider2 = document.createElement("li");
     divider2.textContent = "────────────";
     customMenu.appendChild(divider2);
+
+    // Danger submenu
+    const dangerLevels = ["Safe", "Unsafe", "Risky", "Deadly"];
+    for (const level of dangerLevels) {
+      const li = document.createElement("li");
+      li.textContent = `Mark as ${level}`;
+      li.style.cursor = "pointer";
+      li.onclick = () => {
+        const key = `${x},${y}`;
+        const prev = cellMap.get(key);
+        if (prev) {
+          cellMap.set(key, { ...prev, danger: level });
+        } else {
+          cellMap.set(key, { district: "Low", danger: level }); // fallback default district
+        }
+        drawGrid();
+        updatePoiList();
+        hideMenu();
+      };
+      customMenu.appendChild(li);
+    }
+
+    // Divider
+    const divider3 = document.createElement("li");
+    divider3.textContent = "────────────";
+    customMenu.appendChild(divider3);
 
     // Clear cell option
     const clearLi = document.createElement("li");
