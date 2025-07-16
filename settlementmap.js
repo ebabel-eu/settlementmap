@@ -121,11 +121,75 @@ function initApp(data) {
 
     const gridCount = gridSizes[type];
     const districtTypes = allowedDistricts[type];
-    const targetFillCount = Math.floor(gridCount * gridCount * 0.4); // Adjust fill %
-    const filledCells = generateSettlementShape(gridCount, targetFillCount);
 
-    drawDistricts(ctx, gridCount, districtTypes, filledCells);
+    const usedCells = new Set();
+
+    for (const district of districtTypes) {
+      const maxFill = Math.floor((gridCount * gridCount) / districtTypes.length * (0.8 + Math.random() * 0.4)); // variable size
+      const cells = generateDistrictShape(gridCount, maxFill, usedCells);
+      drawDistrict(ctx, gridCount, district, cells);
+      for (const [x, y] of cells) {
+        usedCells.add(`${x},${y}`);
+      }
+    }
+
     drawGrid(ctx, gridCount); // overlay
+  }
+
+  function generateDistrictShape(gridCount, targetCount, usedCells) {
+    const filled = new Set();
+    const toExplore = [];
+
+    // Start from a random unused cell
+    let start;
+    do {
+      const sx = Math.floor(Math.random() * gridCount);
+      const sy = Math.floor(Math.random() * gridCount);
+      const key = `${sx},${sy}`;
+      if (!usedCells.has(key)) {
+        start = key;
+        break;
+      }
+    } while (true);
+
+    toExplore.push(start);
+    filled.add(start);
+
+    while (filled.size < targetCount && toExplore.length > 0) {
+      const [x, y] = toExplore.shift().split(',').map(Number);
+
+      const directions = [
+        [0, -1], [1, 0], [0, 1], [-1, 0]
+      ];
+
+      for (const [dx, dy] of directions) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const key = `${nx},${ny}`;
+
+        if (
+          nx >= 0 && ny >= 0 &&
+          nx < gridCount && ny < gridCount &&
+          !filled.has(key) &&
+          !usedCells.has(key) &&
+          Math.random() < 0.7
+        ) {
+          filled.add(key);
+          toExplore.push(key);
+          if (filled.size >= targetCount) break;
+        }
+      }
+    }
+
+    return Array.from(filled).map(str => str.split(',').map(Number));
+  }
+
+  function drawDistrict(ctx, gridCount, district, cells) {
+    const cellSize = canvas.width / gridCount;
+    ctx.fillStyle = getDistrictColour(district);
+    for (const [x, y] of cells) {
+      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+    }
   }
 
   // Event listeners
