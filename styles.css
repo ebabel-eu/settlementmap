@@ -110,6 +110,22 @@ h2,
   background: var(--district-fort);
 }
 
+#customMenu {
+  position: absolute;
+  display: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 4px;
+  list-style: none;
+  font-family: sans-serif;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+#customMenu li:hover {
+  background-color: #eee;
+}
+
 ul {
   padding-left: 0;
   margin: 0;

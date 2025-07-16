@@ -16,6 +16,7 @@ function initApp(data) {
   const newVillageBtn = document.getElementById("newVillageButton");
   const newTownBtn = document.getElementById("newTownButton");
   const newCityBtn = document.getElementById("newCityButton");
+  const customMenu = document.getElementById("customMenu");
 
   const namePools = {
     Village: data.villageNames,
@@ -25,173 +26,130 @@ function initApp(data) {
   const gridSizes = data.gridSizes;
   const allowedDistricts = data.allowedDistricts;
 
+  let gridCount = 10;
+  let currentSettlementType = "Village";
+  let cellMap = new Map(); // key: "x,y" -> district
+
   function getRandomName(settlementType) {
     const settlementNames = namePools[settlementType];
     const index = Math.floor(Math.random() * settlementNames.length);
     return settlementNames[index];
   }
 
-  function clearMap(ctx) {
+  function clearMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    cellMap.clear();
   }
 
-  function generateSettlementShape(gridCount, targetCount, avoidEdges = true) {
-    const filled = new Set();
-    const toExplore = [];
-
-    // Start near the center, with some randomness
-    const offset = Math.floor(Math.random() * 4) - 2;
-    const center = Math.floor(gridCount / 2);
-    toExplore.push(`${center + offset},${center + offset}`);
-    filled.add(`${center + offset},${center + offset}`);
-
-    while (filled.size < targetCount && toExplore.length > 0) {
-      const [x, y] = toExplore.shift().split(',').map(Number);
-      const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-
-      for (const [dx, dy] of directions) {
-        const nx = x + dx;
-        const ny = y + dy;
-        const key = `${nx},${ny}`;
-
-        if (
-          nx >= (avoidEdges ? 1 : 0) &&
-          ny >= (avoidEdges ? 1 : 0) &&
-          nx < gridCount - (avoidEdges ? 1 : 0) &&
-          ny < gridCount - (avoidEdges ? 1 : 0) &&
-          !filled.has(key) &&
-          Math.random() < 0.65
-        ) {
-          filled.add(key);
-          toExplore.push(key);
-          if (filled.size >= targetCount) break;
-        }
-      }
-    }
-
-    return Array.from(filled).map(str => str.split(',').map(Number));
-  }
-
-  function splitIntoDistricts(cells, districtTypes, type) {
-    const shuffled = [...cells];
-    const grid = new Map(shuffled.map(([x, y]) => [`${x},${y}`, null]));
-    const chunks = {};
-    const queue = [];
-    let remaining = new Set(shuffled.map(([x, y]) => `${x},${y}`));
-
-    const districtOrder = [...districtTypes].sort(() => Math.random() - 0.5);
-
-    for (const district of districtOrder) {
-      const chunk = [];
-
-      const seed = shuffled.find(([x, y]) => remaining.has(`${x},${y}`));
-      if (!seed) {
-        console.warn(`No remaining cell found for district ${district}`);
-        continue;
-      }
-
-      const [seedX, seedY] = seed;
-      const visited = new Set();
-      queue.push([seedX, seedY]);
-      visited.add(`${seedX},${seedY}`);
-      remaining.delete(`${seedX},${seedY}`);
-
-      let maxCells;
-      if (district === "Fort") {
-        maxCells = type === "Town"
-          ? Math.floor(1 + Math.random() * 2)
-          : Math.floor(3 + Math.random() * 4); // 3 to 6
-      } else {
-        maxCells = Math.floor(cells.length / districtTypes.length * (0.8 + Math.random() * 0.4));
-      }
-
-      while (queue.length > 0 && chunk.length < maxCells) {
-        const [x, y] = queue.shift();
-        chunk.push([x, y]);
-        grid.set(`${x},${y}`, district);
-
-        const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-        for (const [dx, dy] of directions) {
-          const nx = x + dx;
-          const ny = y + dy;
-          const key = `${nx},${ny}`;
-          if (remaining.has(key) && !visited.has(key)) {
-            visited.add(key);
-            queue.push([nx, ny]);
-            remaining.delete(key);
-          }
-        }
-      }
-
-      chunks[district] = chunk;
-    }
-
-    return chunks;
-  }
-
-  function getDistrictColour(district) {
-    const variableName = `--district-${district.toLowerCase().replace(/\s+/g, '-')}`;
-    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim() || '#ccc';
-  }
-
-  function drawDistricts(ctx, gridCount, districtChunks) {
+  function drawGrid() {
     const cellSize = canvas.width / gridCount;
 
-    for (const [district, cells] of Object.entries(districtChunks)) {
-      const colour = getDistrictColour(district);
-      ctx.fillStyle = colour;
-      for (const [x, y] of cells) {
-        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-      }
+    for (const [key, district] of cellMap.entries()) {
+      const [x, y] = key.split(',').map(Number);
+      ctx.fillStyle = getDistrictColour(district);
+      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
     }
-  }
-
-  function drawGrid(ctx, gridCount) {
-    const cellSize = canvas.width / gridCount;
-    const width = canvas.width;
-    const height = canvas.height;
 
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth = 1;
 
-    for (let x = 0; x <= width; x += cellSize) {
+    for (let x = 0; x <= canvas.width; x += cellSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.lineTo(x, canvas.height);
       ctx.stroke();
     }
 
-    for (let y = 0; y <= height; y += cellSize) {
+    for (let y = 0; y <= canvas.height; y += cellSize) {
       ctx.beginPath();
       ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
+      ctx.lineTo(canvas.width, y);
       ctx.stroke();
     }
   }
 
-  function generateSettlement(type, ctx) {
-    const name = getRandomName(type);
-    nameEl.textContent = name;
-    typeEl.textContent = type;
-
-    clearMap(ctx);
-
-    const gridCount = gridSizes[type];
-    const districts = [...allowedDistricts[type]];
-
-    const usableShape = generateSettlementShape(gridCount, Math.floor(gridCount * gridCount * 0.4), true);
-    const districtCells = splitIntoDistricts(usableShape, districts, type);
-
-    drawDistricts(ctx, gridCount, districtCells);
-    drawGrid(ctx, gridCount);
+  function getDistrictColour(district) {
+    const baseName = district.toLowerCase().replace(/\s*(district|quarter)$/i, '').trim();
+    const variableName = `--district-${baseName.replace(/\s+/g, '-')}`;
+    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim() || '#ccc';
   }
 
-  // Event listeners
-  newVillageBtn.addEventListener("click", () => generateSettlement("Village", ctx));
-  newTownBtn.addEventListener("click", () => generateSettlement("Town", ctx));
-  newCityBtn.addEventListener("click", () => generateSettlement("City", ctx));
+  function generateEmptySettlement(type) {
+    currentSettlementType = type;
+    gridCount = gridSizes[type];
+    nameEl.textContent = getRandomName(type);
+    typeEl.textContent = type;
+    clearMap();
+    drawGrid();
+  }
 
-  generateSettlement("Village", ctx);
+  // Context menu logic
+  let currentClick = { x: 0, y: 0 };
+  canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const cellSize = canvas.width / gridCount;
+    const x = Math.floor((e.clientX - rect.left) / cellSize);
+    const y = Math.floor((e.clientY - rect.top) / cellSize);
+    currentClick = { x, y };
+
+    customMenu.innerHTML = "";
+    const recommended = allowedDistricts[currentSettlementType];
+
+    for (const district of recommended) {
+      const li = document.createElement("li");
+      li.textContent = district;
+      li.style.cursor = "pointer";
+      li.onclick = () => {
+        setDistrict(x, y, district);
+        hideMenu();
+      };
+      customMenu.appendChild(li);
+    }
+
+    // Divider
+    const divider = document.createElement("li");
+    divider.textContent = "────────────";
+    customMenu.appendChild(divider);
+
+    const customLi = document.createElement("li");
+    customLi.textContent = "Enter custom district...";
+    customLi.style.cursor = "pointer";
+    customLi.style.fontStyle = "italic";
+    customLi.onclick = () => {
+      const custom = prompt("Enter district name:");
+      if (custom) {
+        setDistrict(x, y, custom);
+      }
+      hideMenu();
+    };
+    customMenu.appendChild(customLi);
+
+    customMenu.style.left = `${e.clientX}px`;
+    customMenu.style.top = `${e.clientY}px`;
+    customMenu.style.display = "block";
+  });
+
+  function hideMenu() {
+    customMenu.style.display = "none";
+  }
+
+  function setDistrict(x, y, district) {
+    cellMap.set(`${x},${y}`, district);
+    drawGrid();
+  }
+
+  window.addEventListener("click", hideMenu);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideMenu();
+  });
+
+  // Buttons
+  newVillageBtn.addEventListener("click", () => generateEmptySettlement("Village"));
+  newTownBtn.addEventListener("click", () => generateEmptySettlement("Town"));
+  newCityBtn.addEventListener("click", () => generateEmptySettlement("City"));
+
+  generateEmptySettlement("Village"); // start with default
 }
 
 loadApp();
