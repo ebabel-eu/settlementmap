@@ -1,15 +1,20 @@
 :root {
-  --district-slums: #d8b6b6;
-  --district-low: #d3c6b3;
-  --district-artisan: #d2b48c;
-  --district-market: #ffe5a0;
-  --district-high: #c3d9d7;
-  --district-temple: #e1d4f2;
-  --district-magic: #c7b6f3;
-  --district-fort: #f2c4c4;
+  --district-slums: #e8d4d1;
+  --district-low: #e6dccf;
+  --district-artisan: #ead1b0;
+  --district-market: #fff2b2;
+  --district-high: #d1e7e4;
+  --district-temple: #e7ddf6;
+  --district-magic: #dcd0f8;
+  --district-necropolis: #d8d8d8;
+  --district-foreign: #e0d8c5;
+  --district-docks: #d4e4ec;
+  --district-fort: #f2d3d3;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -26,7 +31,9 @@ canvas {
   height: auto;
 }
 
-h1, h2, .map-title {
+h1,
+h2,
+.map-title {
   font-family: 'IM Fell English SC', serif;
 }
 
@@ -85,6 +92,18 @@ h1, h2, .map-title {
 
 .swatch-magic {
   background: var(--district-magic);
+}
+
+.swatch-necropolis {
+  background: var(--district-necropolis);
+}
+
+.swatch-foreign {
+  background: var(--district-foreign);
+}
+
+.swatch-docks {
+  background: var(--district-docks);
 }
 
 .swatch-fort {

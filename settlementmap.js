@@ -57,8 +57,6 @@ function initApp(data) {
     }
   }
 
-
-
   function generateSettlement(settlementType, ctx) {
     const name = getRandomName(settlementType);
 
