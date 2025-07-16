@@ -1,0 +1,27 @@
+{
+  "name": "settlementmap",
+  "version": "1.0.0",
+  "description": "Generate a settlement map.",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ebabel-eu/settlementmap.git"
+  },
+  "keywords": [
+    "map",
+    "settlement",
+    "rpg",
+    "grid",
+    "fantasy"
+  ],
+  "author": "Thomas Amar <hello@ebabel.eu>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/ebabel-eu/settlementmap/issues"
+  },
+  "homepage": "https://github.com/ebabel-eu/settlementmap#readme"
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settlement Map Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet" />
+  <link href="./styles.css" rel="stylesheet" />
+  <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+  <section class="map-title" aria-labelledby="settlement-name">
+    <h1 id="settlement-name">&nbsp;</h1>
+    <p id="settlement-type">&nbsp;</p>
+  </section>
+
+  <nav id="buttons" aria-label="Map controls">
+    <button id="newVillageButton">New Village</button>
+    <button id="newTownButton">New Town</button>
+    <button id="newCityButton">New City</button>
+    <button id="toggleDangerButton">DM / Players</button>
+  </nav>
+
+  <main>
+    <canvas id="settlementCanvas" width="800" height="800"></canvas>
+    <section id="poiList" aria-label="Points of Interest" style="display: block" role="region">
+      <h2>Points of Interest (DM only)</h2>
+      <ul>
+        <li><strong>1</strong>: <span class="poi-text" contenteditable="true">Old Well in Market District</span></li>
+        <li><strong>2</strong>: <span class="poi-text" contenteditable="true">Broken Statue of the Sun God</span></li>
+        <li><strong>3</strong>: <span class="poi-text" contenteditable="true">Abandoned Guard Tower (Slums)</span></li>
+      </ul>
+    </section>
+  </main>
+
+  <section class="legend">
+    <ul>
+      <li><span class="swatch swatch-slums" id="swatch-slums"></span> Slums</li>
+      <li><span class="swatch swatch-low" id="swatch-low"></span> Low</li>
+      <li><span class="swatch swatch-artisan" id="swatch-artisan"></span> Artisan</li>
+      <li><span class="swatch swatch-market" id="swatch-market"></span> Market</li>
+      <li><span class="swatch swatch-high" id="swatch-high"></span> High</li>
+      <li><span class="swatch swatch-temple" id="swatch-temple"></span> Temple</li>
+      <li><span class="swatch swatch-magic" id="swatch-magic"></span> Magic</li>
+      <li><span class="swatch swatch-castle" id="swatch-castle"></span> Castle</li>
+      <li>&nbsp;</li>
+      <li>1 square = 30 feet</li>
+      <li>&nbsp;</li>
+      <li class="risks">Safe, <span class="risk-3">Unsafe</span>, <span class="risk-2">Risky</span>, <span
+          class="risk-1">Deadly</span></li>
+    </ul>
+  </section>
+
+  <script src="settlementmap.js"></script>
+</body>
+
+</html>

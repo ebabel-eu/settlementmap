@@ -1,0 +1,204 @@
+:root {
+  --district-slums: #d8b6b6;
+  --district-low: #d3c6b3;
+  --district-artisan: #d2b48c;
+  --district-market: #ffe5a0;
+  --district-high: #c3d9d7;
+  --district-temple: #e1d4f2;
+  --district-magic: #c7b6f3;
+  --district-castle: #f2c4c4;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+canvas {
+  background-color: #ffffff;
+  display: block;
+  margin: 2rem auto;
+  max-width: 100%;
+  height: auto;
+}
+
+h1, h2, .map-title {
+  font-family: 'IM Fell English SC', serif;
+}
+
+.map-title {
+  text-align: center;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.map-title h1 {
+  margin: 0;
+  font-size: 2em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.map-title p {
+  margin: 0;
+  font-size: 1.1em;
+  color: #555;
+}
+
+.legend {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 20px;
+  background: white;
+  z-index: 1;
+}
+
+.swatch-slums {
+  background: var(--district-slums);
+}
+
+.swatch-low {
+  background: var(--district-low);
+}
+
+.swatch-artisan {
+  background: var(--district-artisan);
+}
+
+.swatch-market {
+  background: var(--district-market);
+}
+
+.swatch-high {
+  background: var(--district-high);
+}
+
+.swatch-temple {
+  background: var(--district-temple);
+}
+
+.swatch-magic {
+  background: var(--district-magic);
+}
+
+.swatch-castle {
+  background: var(--district-castle);
+}
+
+ul {
+  padding-left: 0;
+  margin: 0;
+}
+
+ul li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #000;
+}
+
+.context-menu {
+  position: absolute;
+  display: none;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 5px;
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background-color: #eee;
+}
+
+#buttons {
+  position: absolute;
+  top: 10px;
+  z-index: 2;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+.risks span {
+  position: relative;
+}
+
+.risks span::after {
+  position: absolute;
+  top: -15px;
+  left: 0;
+  opacity: .15;
+  font-size: 1.5em;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}
+
+.risks span.risk-1::after {
+  content: "1r";
+}
+
+.risks span.risk-2::after {
+  content: "2r";
+}
+
+.risks span.risk-3::after {
+  content: "3r";
+}
+
+.poi-text {
+  display: inline-block;
+  min-width: 100px;
+  padding: 2px 4px;
+  border: 1px dashed #ccc;
+  border-radius: 3px;
+  cursor: text;
+}
+
+.poi-text:focus {
+  outline: none;
+  border-color: #666;
+  background: #f8f8f8;
+}
+
+@media print {
+  .map-title {
+    margin-top: 0;
+    margin-bottom: .5rem;
+  }
+
+  canvas {
+    page-break-inside: avoid;
+  }
+
+  #buttons {
+    display: none;
+  }
+
+  .poi-text {
+    border: none;
+    padding: inherit;
+  }
+}
