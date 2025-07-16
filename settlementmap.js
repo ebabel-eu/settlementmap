@@ -34,6 +34,75 @@ function initApp(data) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
+  function getAllowedDistricts(type) {
+    switch (type) {
+      case "Town":
+        return ["Low", "Artisan", "Market", "Temple", "Fort"];
+      case "City":
+        return [
+          "Slums", "Low", "Artisan", "Market", "High",
+          "Temple", "Magic", "Fort", "Necropolis",
+          "Foreign", "Docks"
+        ];
+      default:  // Village and unexpected.
+        return ["Low", "Artisan", "Market"];
+    }
+  }
+
+  function generateSettlementShape(gridCount, targetCount) {
+    const filled = new Set();
+    const toExplore = [];
+
+    // Start near the center
+    const center = Math.floor(gridCount / 2);
+    toExplore.push(`${center},${center}`);
+    filled.add(`${center},${center}`);
+
+    while (filled.size < targetCount && toExplore.length > 0) {
+      const [x, y] = toExplore.shift().split(',').map(Number);
+
+      // Neighbouring positions (4-directional)
+      const directions = [
+        [0, -1], [1, 0], [0, 1], [-1, 0]
+      ];
+
+      for (const [dx, dy] of directions) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const key = `${nx},${ny}`;
+
+        if (
+          nx >= 0 && ny >= 0 &&
+          nx < gridCount && ny < gridCount &&
+          !filled.has(key) &&
+          Math.random() < 0.6 // randomness to make shape less uniform
+        ) {
+          filled.add(key);
+          toExplore.push(key);
+          if (filled.size >= targetCount) break;
+        }
+      }
+    }
+
+    return Array.from(filled).map(str => str.split(',').map(Number));
+  }
+
+  function drawDistricts(ctx, gridCount, districtTypes, cells) {
+    const cellSize = canvas.width / gridCount;
+
+    for (const [x, y] of cells) {
+      const district = districtTypes[Math.floor(Math.random() * districtTypes.length)];
+      ctx.fillStyle = getDistrictColour(district);
+      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+    }
+  }
+
+  function getDistrictColour(district) {
+    const variableName = `--district-${district.toLowerCase().replace(/\s+/g, '-')}`;
+    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim() || '#ccc';
+  }
+
+
   function drawGrid(ctx, gridCount) {
     const cellSize = canvas.width / gridCount;
     const width = canvas.width;
@@ -57,16 +126,20 @@ function initApp(data) {
     }
   }
 
-  function generateSettlement(settlementType, ctx) {
-    const name = getRandomName(settlementType);
-
+  function generateSettlement(type, ctx) {
+    const name = getRandomName(type);
     nameEl.textContent = name;
-    typeEl.textContent = settlementType;
+    typeEl.textContent = type;
 
     clearMap(ctx);
 
-    const gridCount = gridSizes[settlementType];
-    drawGrid(ctx, gridCount);
+    const gridCount = gridSizes[type];
+    const districtTypes = getAllowedDistricts(type);
+    const targetFillCount = Math.floor(gridCount * gridCount * 0.4); // Adjust fill %
+    const filledCells = generateSettlementShape(gridCount, targetFillCount);
+
+    drawDistricts(ctx, gridCount, districtTypes, filledCells);
+    drawGrid(ctx, gridCount); // overlay
   }
 
   // Event listeners
