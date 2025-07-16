@@ -158,12 +158,29 @@ function initApp(data) {
 
     for (const district of data.districts) {
       const li = document.createElement("li");
-      li.textContent = district;
       li.style.cursor = "pointer";
+      li.style.display = "flex";
+      li.style.alignItems = "center";
+      li.style.gap = "0.5em";
+
+      const swatch = document.createElement("span");
+      swatch.style.display = "inline-block";
+      swatch.style.width = "1em";
+      swatch.style.height = "1em";
+      swatch.style.border = "1px solid #999";
+      swatch.style.backgroundColor = getDistrictColour(district);
+
+      const label = document.createElement("span");
+      label.textContent = district;
+
+      li.appendChild(swatch);
+      li.appendChild(label);
+
       li.onclick = () => {
         setDistrict(x, y, district);
         hideMenu();
       };
+
       customMenu.appendChild(li);
     }
 
