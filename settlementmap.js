@@ -23,6 +23,7 @@ function initApp(data) {
     City: data.cityNames
   };
   const gridSizes = data.gridSizes;
+  const allowedDistricts = data.allowedDistricts;
 
   function getRandomName(settlementType) {
     const settlementNames = namePools[settlementType];
@@ -32,21 +33,6 @@ function initApp(data) {
 
   function clearMap(ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function getAllowedDistricts(type) {
-    switch (type) {
-      case "Town":
-        return ["Low", "Artisan", "Market", "Temple", "Fort"];
-      case "City":
-        return [
-          "Slums", "Low", "Artisan", "Market", "High",
-          "Temple", "Magic", "Fort", "Necropolis",
-          "Foreign", "Docks"
-        ];
-      default:  // Village and unexpected.
-        return ["Low", "Artisan", "Market"];
-    }
   }
 
   function generateSettlementShape(gridCount, targetCount) {
@@ -134,7 +120,7 @@ function initApp(data) {
     clearMap(ctx);
 
     const gridCount = gridSizes[type];
-    const districtTypes = getAllowedDistricts(type);
+    const districtTypes = allowedDistricts[type];
     const targetFillCount = Math.floor(gridCount * gridCount * 0.4); // Adjust fill %
     const filledCells = generateSettlementShape(gridCount, targetFillCount);
 

@@ -319,5 +319,32 @@
     "Village": 10,
     "Town": 15,
     "City": 26
+  },
+  "allowedDistricts": {
+    "Village": [
+      "Low",
+      "Artisan",
+      "Market"
+    ],
+    "Town": [
+      "Low",
+      "Artisan",
+      "Market",
+      "Temple",
+      "Fort"
+    ],
+    "City": [
+      "Slums",
+      "Low",
+      "Artisan",
+      "Market",
+      "High",
+      "Temple",
+      "Magic",
+      "Fort",
+      "Necropolis",
+      "Foreign",
+      "Docks"
+    ]
   }
 }
