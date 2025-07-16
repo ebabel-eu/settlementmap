@@ -24,8 +24,8 @@ function initApp(data) {
   };
   const gridSizes = data.gridSizes;
 
-  function getRandomName(type) {
-    const settlementNames = namePools[type];
+  function getRandomName(settlementType) {
+    const settlementNames = namePools[settlementType];
     const index = Math.floor(Math.random() * settlementNames.length);
     return settlementNames[index];
   }
@@ -59,15 +59,15 @@ function initApp(data) {
 
 
 
-  function generateSettlement(type, ctx) {
-    const name = getRandomName(type);
+  function generateSettlement(settlementType, ctx) {
+    const name = getRandomName(settlementType);
 
     nameEl.textContent = name;
-    typeEl.textContent = type;
+    typeEl.textContent = settlementType;
 
     clearMap(ctx);
 
-    const gridCount = gridSizes[type];
+    const gridCount = gridSizes[settlementType];
     drawGrid(ctx, gridCount);
   }
 
