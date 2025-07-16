@@ -203,8 +203,9 @@ button:hover {
   content: "3r";
 }
 
-.poi-text {
-  display: inline-block;
+.poi-text,
+#settlement-name,
+#settlement-type {
   min-width: 100px;
   padding: 2px 4px;
   border: 1px dashed #ccc;
@@ -212,7 +213,19 @@ button:hover {
   cursor: text;
 }
 
-.poi-text:focus {
+.poi-text {
+  display: inline-block;
+}
+
+#settlement-name,
+#settlement-type {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.poi-text:focus,
+#settlement-name:focus,
+#settlement-type:focus {
   outline: none;
   border-color: #666;
   background: #f8f8f8;
@@ -235,5 +248,10 @@ button:hover {
   .poi-text {
     border: none;
     padding: inherit;
+  }
+
+  #settlement-name,
+  #settlement-type {
+    border: none;
   }
 }
